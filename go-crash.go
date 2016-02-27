@@ -49,8 +49,8 @@ func learnTypes() {
 	s = append(s, []int{7, 8, 9}...)
 	fmt.Println(s)
 
-	//p, q := learnMemory()
-	//fmt.Println(*p, *q)
+	p, q := learnMemory()
+	fmt.Println(*p, *q)
 
 	m := map[string]int{"three": 3, "four": 4}
 	fmt.Println(m)
@@ -59,4 +59,63 @@ func learnTypes() {
 	// Unused variables result in error in GO. Use underscore to discard the values.
 	_, _, _, _, _, _, _, _, _, _ = str, s2, g, f, u, pi, n, a3, c, a4
 
+	learnFlowControl() // loops
+
+}
+
+// This is cool. GO allows named returns in the signature of the function.
+// This way we can return from anywhere within the function
+func learnNamedReturns(x, y int) (z int) {
+	z = x * y
+	return
+}
+
+func learnMemory() (p, q *int) {
+	// Uptil now p and q are nil pointers.
+	p = new(int)         // new is a function that allocates memory. p is no longer a nil pointer
+	s := make([]int, 20) // Allocate 20 ints in a single block of memory
+	s[3] = 7
+	r := -2
+	return &s[3], &r
+}
+
+func learnFlowControl() {
+	if true {
+		fmt.Println("if statements require curly braces")
+	}
+
+	x := 42
+
+	// for loop
+	for x := 0; x <= 3; x++ {
+		fmt.Println("looping x", x)
+	}
+
+	for { // Infinite loop
+		break
+	}
+
+	for key, value := range map[string]int{"one": 1, "two": 2} {
+		fmt.Println(key, value)
+	}
+
+	// Closures
+	xBig := func() bool {
+		return x > 1000
+	}
+
+	fmt.Println(xBig())
+
+	x = 1.3e3 // This makes x == 1300
+
+	// Function literals can be used inline
+	fmt.Println("Adding two numbers", func(a, b int) int {
+		return a + b
+	}(10, 2))
+
+	goto: love
+	love:
+		learnFunctionFactory()
+		learnDefer()
+		learnInterfaces()
 }
