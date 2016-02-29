@@ -1,6 +1,9 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"strconv"
+)
 
 func main() {
 	beyondHello()
@@ -113,9 +116,131 @@ func learnFlowControl() {
 		return a + b
 	}(10, 2))
 
-	goto: love
-	love:
-		learnFunctionFactory()
-		learnDefer()
-		learnInterfaces()
+	goto love
+love:
+	learnFunctionFactory()
+	learnDefer()
+	learnInterfaces()
+}
+
+// Decorator design pattern example
+func learnFunctionFactory() {
+	fmt.Println(sentenceFactory("summer")("A beautiful", "day!!"))
+
+	// This is a more practical use case.
+	d := sentenceFactory("summer")
+	fmt.Println(d("A hot", "day"))
+	fmt.Println(d("A lazy", "afternoon"))
+}
+
+func sentenceFactory(myString string) func(before, after string) string {
+	return func(before, after string) string {
+		return fmt.Sprintf("%s %s %s", before, myString, after)
+	}
+}
+
+func learnDefer() bool {
+	// Deferred functions are executed just before the function returns.
+	defer fmt.Println("The functions are executed in reverse order. LIFO")
+	defer fmt.Println("This will be the first line.")
+	// Defer is mostly used to close a file/stream so that closing can stay close to open.
+	return true
+}
+
+// Stringer is an interface type with one method exported
+type Stringer interface {
+	String() string
+}
+
+// Struct with two fields.
+type pair struct {
+	x, y int
+}
+
+func (p pair) String() string {
+	return fmt.Sprintf("(%d, %d)", p.x, p.y)
+}
+
+func learnInterfaces() {
+	// Brace syntax initializes struct
+	p := pair{3, 4}
+	fmt.Println(p.String()) // Calling String method of p, of type pair.
+
+	var i Stringer
+	i = p // This is valid
+	fmt.Println(i.String())
+
+	// This will call the String method
+	fmt.Println(p)
+	fmt.Println(i)
+
+	learnVariadicParams("great", "learining", "here")
+}
+
+func learnVariadicParams(myStrings ...interface{}) {
+
+	// _ since we are ignoring the index.
+	for _, param := range myStrings {
+		fmt.Println("param:", param)
+	}
+
+	learnErrorHandling()
+}
+
+func learnErrorHandling() {
+	m := map[int]string{3: "three", 4: "four"}
+	if x, ok := m[1]; !ok { // ok will be false here since 1 is not in the map
+		fmt.Println("no one there")
+	} else {
+		fmt.Println(x)
+	}
+
+	// More about the error.
+	if _, err := strconv.Atoi("non-int"); err != nil {
+		fmt.Println(err)
+	}
+
+	learnConcurrency()
+}
+
+// c is a channel, a concurrency-safe communication object.
+func inc(i int, c chan int) {
+	c <- i + 1
+}
+
+// We'll use inc to increment some numbers concurrently
+func learnConcurrency() {
+	// make function allocates memory and initializes slices, map and channels.
+	c := make(chan int)
+
+	// Start three concurrent gorountines. Numbers will be incremented concurrently. Maybe in parallel.
+	go inc(0, c)
+	go inc(10, c)
+	go inc(-805, c)
+
+	fmt.Println(<-c, <-c, <-c) // channel on right, <- is "receive" operator.
+
+	cs := make(chan string)
+	ccs := make(chan chan string)
+
+	go func() {
+		c <- 84
+	}() // Starting a go rountine to just send a single value through a channel
+
+	go func() {
+		cs <- "wordy"
+	}()
+
+	// Select is like a switch but involves channels. It picks the channel in random which is
+	// ready to communicate.
+	select {
+	case i := <-c:
+		fmt.Printf("it is a %T", i)
+	case <-cs:
+		fmt.Println("It's a string")
+	case <-ccs:
+		fmt.Println("not happening.")
+	}
+
+	fmt.Println("Done with channels and concurrency")
 }
